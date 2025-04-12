@@ -1,0 +1,85 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Random;
+
+public class MenuApp extends JFrame {
+
+    private JTextArea textArea;
+
+    public MenuApp() {
+        setTitle("Menu UI Example");
+        setSize(500, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Text area to display or write output
+        textArea = new JTextArea();
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        // Set up the menu bar
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Options");
+
+        JMenuItem showDateTime = new JMenuItem("Show Date and Time");
+        JMenuItem saveToFile = new JMenuItem("Save to log.txt");
+        JMenuItem changeColor = new JMenuItem("Change Background Color");
+        JMenuItem exitApp = new JMenuItem("Exit");
+
+        menu.add(showDateTime);
+        menu.add(saveToFile);
+        menu.add(changeColor);
+        menu.add(exitApp);
+        menuBar.add(menu);
+        setJMenuBar(menuBar);
+
+        // Action: Show date and time
+        showDateTime.addActionListener(e -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String currentDateTime = LocalDateTime.now().format(formatter);
+            textArea.setText("Current Date and Time: " + currentDateTime);
+        });
+
+        // Action: Save to file
+        saveToFile.addActionListener(e -> {
+            try (FileWriter writer = new FileWriter("log.txt")) {
+                writer.write(textArea.getText());
+                JOptionPane.showMessageDialog(this, "Text saved to log.txt");
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage());
+            }
+        });
+
+        // Action: Change background to random orange hue
+        changeColor.addActionListener(e -> {
+            Color randomOrange = getRandomOrangeHue();
+            getContentPane().setBackground(randomOrange);
+            changeColor.setText("Orange Hue: #" + Integer.toHexString(randomOrange.getRGB()).substring(2).toUpperCase());
+        });
+
+        // Action: Exit
+        exitApp.addActionListener(e -> System.exit(0));
+
+        setVisible(true);
+    }
+
+    private Color getRandomOrangeHue() {
+        // Random hue variation on orange (#FFA500)
+        Random rand = new Random();
+        int r = 255;
+        int g = 165 + rand.nextInt(91) - 45; // 165 ± 45
+        int b = rand.nextInt(100); // Keep blue low to stay in orange hues
+        g = Math.min(Math.max(g, 0), 255);
+        return new Color(r, g, b);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(MenuApp::new);
+    }
+}
